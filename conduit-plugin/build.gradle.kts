@@ -5,27 +5,20 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
-group = project.group
-version = project.version
-
 repositories {
     mavenCentral()
     gradlePluginPortal()
-    mavenLocal()
 }
 
 dependencies {
-}
-
-tasks.test {
-    useJUnitPlatform()
+    implementation(libs.gson)
 }
 
 gradlePlugin {
     plugins {
         create("conduit") {
             id = "vn.io.huangnosimp.conduit"
-            implementationClass = "vn.io.huangnosimp.conduit"
+            implementationClass = "vn.io.huangnosimp.Conduit"
         }
     }
 }
