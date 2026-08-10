@@ -1,4 +1,4 @@
-package vn.io.huangnosimp.utils
+package vn.io.huangnosimp.utils.mcmanifest
 
 data class Version (
     var id: String,

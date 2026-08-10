@@ -1,6 +1,5 @@
-package vn.io.huangnosimp.utils
+package vn.io.huangnosimp.utils.mcmanifest
 
 data class McManifest(
-    var latest: Latest,
     var versions: List<Version>
 )

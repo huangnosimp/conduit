@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import vn.io.huangnosimp.extension.ConduitExtension
 import vn.io.huangnosimp.tasks.DownloadMcManifest
+import vn.io.huangnosimp.tasks.DownloadServerJar
 import vn.io.huangnosimp.tasks.DownloadVersionManifest
 
 class Conduit : Plugin<Project> {
@@ -13,13 +14,20 @@ class Conduit : Plugin<Project> {
             it.group = "conduit"
             it.outputFile.set(project.layout.buildDirectory.file("conduit/manifest/mcManifest.json"))
         }
-        project.tasks.register("downloadVersionManifest", DownloadVersionManifest::class.java) {
+        val downloadVersionManifest = project.tasks.register("downloadVersionManifest", DownloadVersionManifest::class.java) {
             it.group = "conduit"
             it.mcVersion.set(ext.mcVersion)
             it.inputFile.set(downloadMcManifest.flatMap {
                 task -> task.outputFile
             })
             it.outputFile.set(project.layout.buildDirectory.file("conduit/manifest/versionManifest.json"))
+        }
+        val downloadServerJar = project.tasks.register("downloadServerJar", DownloadServerJar::class.java) {
+            it.group = "conduit"
+            it.inputFile.set(downloadVersionManifest.flatMap {
+                task -> task.outputFile
+            })
+            it.outputFile.set(project.layout.buildDirectory.file("conduit/server.jar"))
         }
     }
 }
