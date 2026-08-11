@@ -2,8 +2,10 @@
 kotlin = "2.4.10"
 ktlint = "14.2.0"
 gson = "2.14.0"
+vineflower = "1.12.0"
 [libraries]
 gson = {module = "com.google.code.gson:gson", version.ref = "gson"}
+vineflower = {module = "org.vineflower:vineflower", version.ref = "vineflower"}
 [plugins]
 kotlin-jvm = {id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin"}
 ktlint = {id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint"}
