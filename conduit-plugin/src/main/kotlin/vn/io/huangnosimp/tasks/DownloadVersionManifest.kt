@@ -13,8 +13,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import vn.io.huangnosimp.utils.Constant
-import vn.io.huangnosimp.utils.mcmanifest.McManifest
+import vn.io.huangnosimp.utils.constant.MC_26_RELEASE_TIME
+import vn.io.huangnosimp.utils.data.McManifest
 import vn.io.huangnosimp.utils.toSha1
 import java.net.URI
 import java.net.http.HttpClient
@@ -30,21 +30,21 @@ abstract class DownloadVersionManifest: DefaultTask() {
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val inputFile: RegularFileProperty
+    abstract val mcManifest: RegularFileProperty
 
     @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    abstract val versionManifest: RegularFileProperty
 
     @TaskAction
     fun run() {
         val gson = Gson()
-        val json = inputFile.get().asFile.readText(Charsets.UTF_8)
+        val json = mcManifest.get().asFile.readText(Charsets.UTF_8)
         val mcManifest = gson.fromJson(json, McManifest::class.java)
         val version = mcManifest.versions.associateBy { it.id }[mcVersion.get().trim()]
             ?: throw InvalidUserDataException("not found minecraft version ${mcVersion.get()}.")
 
         val releaseTime = OffsetDateTime.parse(version.releaseTime).toInstant()
-        if (releaseTime.isBefore(Constant.MC_26_RELEASE_TIME)) {
+        if (releaseTime.isBefore(MC_26_RELEASE_TIME)) {
             throw InvalidUserDataException("plugin only support minecraft version from 26.x.x.")
         }
 
@@ -65,6 +65,6 @@ abstract class DownloadVersionManifest: DefaultTask() {
             throw GradleException("File integrity verification failed")
         }
 
-        outputFile.get().asFile.writeText(response.body())
+        versionManifest.get().asFile.writeText(response.body())
     }
 }

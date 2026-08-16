@@ -3,39 +3,48 @@ package vn.io.huangnosimp
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import vn.io.huangnosimp.extension.ConduitExtension
+import vn.io.huangnosimp.tasks.DecompileServerJar
 import vn.io.huangnosimp.tasks.DownloadMcManifest
-import vn.io.huangnosimp.tasks.DownloadServerJar
+import vn.io.huangnosimp.tasks.DownloadBundlerJar
 import vn.io.huangnosimp.tasks.DownloadVersionManifest
-import vn.io.huangnosimp.tasks.ExtractServerJar
+import vn.io.huangnosimp.tasks.ExtractBundlerJar
 
 class Conduit : Plugin<Project> {
     override fun apply(project: Project) {
         val ext = project.extensions.create("conduit", ConduitExtension::class.java)
         val downloadMcManifest = project.tasks.register("downloadMcManifest", DownloadMcManifest::class.java) {
             it.group = "conduit"
-            it.outputFile.set(project.layout.buildDirectory.file("conduit/manifest/mcManifest.json"))
+            it.mcManifest.set(project.layout.buildDirectory.file("conduit/manifest/mcManifest.json"))
         }
         val downloadVersionManifest = project.tasks.register("downloadVersionManifest", DownloadVersionManifest::class.java) {
             it.group = "conduit"
             it.mcVersion.set(ext.mcVersion)
-            it.inputFile.set(downloadMcManifest.flatMap {
-                task -> task.outputFile
+            it.mcManifest.set(downloadMcManifest.flatMap {
+                task -> task.mcManifest
             })
-            it.outputFile.set(project.layout.buildDirectory.file("conduit/manifest/versionManifest.json"))
+            it.versionManifest.set(project.layout.buildDirectory.file("conduit/manifest/versionManifest.json"))
         }
-        val downloadServerJar = project.tasks.register("downloadServerJar", DownloadServerJar::class.java) {
+        val downloadBundlerJar = project.tasks.register("downloadBundlerJar", DownloadBundlerJar::class.java) {
             it.group = "conduit"
-            it.inputFile.set(downloadVersionManifest.flatMap {
-                task -> task.outputFile
+            it.versionManifest.set(downloadVersionManifest.flatMap {
+                task -> task.versionManifest
             })
-            it.outputFile.set(project.layout.buildDirectory.file("conduit/server.jar"))
+            it.bundlerJar.set(project.layout.buildDirectory.file("conduit/bundler.jar"))
         }
-        val extractServerJar = project.tasks.register("extractServerJar", ExtractServerJar::class.java) {
+        val extractBundlerJar = project.tasks.register("extractBundlerJar", ExtractBundlerJar::class.java) {
             it.group = "conduit"
-            it.inputFile.set(downloadServerJar.flatMap {
-                task -> task.outputFile
+            it.bundleJar.set(downloadBundlerJar.flatMap {
+                task -> task.bundlerJar
             })
-            it.outputDirectory.set(project.layout.buildDirectory.dir("conduit/bundle"))
+            it.serverJar.set(project.layout.buildDirectory.file("conduit/server.jar"))
+            it.libsDir.set(project.layout.buildDirectory.dir("conduit/libs"))
+        }
+        val decompileServerJar = project.tasks.register("decompileServerJar", DecompileServerJar::class.java) {
+            it.group = "conduit"
+            it.serverJar.set(extractBundlerJar.flatMap {
+                task -> task.serverJar
+            })
+            it.sourceDir.set(project.layout.buildDirectory.dir("conduit/source"))
         }
     }
 }

@@ -10,8 +10,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import vn.io.huangnosimp.utils.data.McVersionManifest
 import vn.io.huangnosimp.utils.toSha1
-import vn.io.huangnosimp.utils.versionmanifest.VersionManifest
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -19,19 +19,19 @@ import java.net.http.HttpResponse
 import java.time.Duration
 
 @CacheableTask
-abstract class DownloadServerJar: DefaultTask() {
+abstract class DownloadBundlerJar: DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val inputFile: RegularFileProperty
+    abstract val versionManifest: RegularFileProperty
 
     @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    abstract val bundlerJar: RegularFileProperty
 
     @TaskAction
     fun run() {
         val gson = Gson()
-        val json = inputFile.get().asFile.readText(Charsets.UTF_8)
-        val versionManifest = gson.fromJson(json, VersionManifest::class.java)
+        val json = versionManifest.get().asFile.readText(Charsets.UTF_8)
+        val versionManifest = gson.fromJson(json, McVersionManifest::class.java)
         val server = versionManifest.downloads.server
 
         val client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
@@ -51,6 +51,6 @@ abstract class DownloadServerJar: DefaultTask() {
             throw GradleException("File integrity verification failed")
         }
 
-        outputFile.get().asFile.writeBytes(response.body())
+        bundlerJar.get().asFile.writeBytes(response.body())
     }
 }
