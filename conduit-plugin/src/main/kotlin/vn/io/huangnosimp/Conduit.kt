@@ -29,14 +29,14 @@ class Conduit : Plugin<Project> {
             it.versionManifest.set(downloadVersionManifest.flatMap {
                 task -> task.versionManifest
             })
-            it.bundlerJar.set(project.layout.buildDirectory.file("conduit/bundler.jar"))
+            it.bundlerJar.set(project.layout.buildDirectory.file("conduit/jars/bundler.jar"))
         }
         val extractBundlerJar = project.tasks.register("extractBundlerJar", ExtractBundlerJar::class.java) {
             it.group = "conduit"
             it.bundleJar.set(downloadBundlerJar.flatMap {
                 task -> task.bundlerJar
             })
-            it.serverJar.set(project.layout.buildDirectory.file("conduit/server.jar"))
+            it.serverJar.set(project.layout.buildDirectory.file("conduit/jars/server.jar"))
             it.libsDir.set(project.layout.buildDirectory.dir("conduit/libs"))
         }
         val decompileServerJar = project.tasks.register("decompileServerJar", DecompileServerJar::class.java) {
@@ -44,7 +44,10 @@ class Conduit : Plugin<Project> {
             it.serverJar.set(extractBundlerJar.flatMap {
                 task -> task.serverJar
             })
-            it.sourceDir.set(project.layout.buildDirectory.dir("conduit/source"))
+            it.libsDir.set(extractBundlerJar.flatMap {
+                task -> task.libsDir
+            })
+            it.outputJar.set(project.layout.buildDirectory.file("conduit/jars/decompiled_server.jar"))
         }
     }
 }
