@@ -10,8 +10,8 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import vn.io.huangnosimp.utils.data.McVersionManifest
-import vn.io.huangnosimp.utils.toSha1
+import vn.io.huangnosimp.data.McVersionManifest
+import vn.io.huangnosimp.hashing.toSha1
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -19,7 +19,7 @@ import java.net.http.HttpResponse
 import java.time.Duration
 
 @CacheableTask
-abstract class DownloadBundlerJar: DefaultTask() {
+abstract class DownloadBundlerJar : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionManifest: RegularFileProperty
@@ -37,11 +37,12 @@ abstract class DownloadBundlerJar: DefaultTask() {
         val client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
         val request = HttpRequest.newBuilder(URI(server.url)).timeout(Duration.ofSeconds(60)).build()
 
-        val response = try {
-            client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        } catch (e: Exception) {
-            throw GradleException("Failed to download server from ${server.url}: ${e.message}", e)
-        }
+        val response =
+            try {
+                client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+            } catch (e: Exception) {
+                throw GradleException("Failed to download server from ${server.url}: ${e.message}", e)
+            }
 
         if (response.statusCode() != 200) {
             throw GradleException("Can't download server.jar.")

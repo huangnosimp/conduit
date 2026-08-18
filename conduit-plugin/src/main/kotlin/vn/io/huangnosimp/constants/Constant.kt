@@ -1,4 +1,4 @@
-package vn.io.huangnosimp.utils.constant
+package vn.io.huangnosimp.constants
 
 import java.time.Instant
 import java.time.OffsetDateTime

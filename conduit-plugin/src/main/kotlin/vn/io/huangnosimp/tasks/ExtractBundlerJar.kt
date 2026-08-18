@@ -8,15 +8,15 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import vn.io.huangnosimp.utils.constant.LIBRARIES_DIR
-import vn.io.huangnosimp.utils.constant.VERSIONS_LIST
+import vn.io.huangnosimp.constants.LIBRARIES_DIR
+import vn.io.huangnosimp.constants.VERSIONS_LIST
 import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 @CacheableTask
-abstract class ExtractBundlerJar: DefaultTask() {
+abstract class ExtractBundlerJar : DefaultTask() {
     @get:Classpath
     abstract val bundleJar: RegularFileProperty
 
@@ -32,7 +32,12 @@ abstract class ExtractBundlerJar: DefaultTask() {
         val env = mapOf("create" to "false")
 
         FileSystems.newFileSystem(jarUri, env).use { fileSystem ->
-            val serverJarPath = Files.readAllLines(fileSystem.getPath(VERSIONS_LIST))[0].split('\t').last().trim()
+            val serverJarPath =
+                Files
+                    .readAllLines(fileSystem.getPath(VERSIONS_LIST))[0]
+                    .split('\t')
+                    .last()
+                    .trim()
             val sourceEntry = fileSystem.getPath("/META-INF/versions/$serverJarPath")
             Files.copy(sourceEntry, serverJar.get().asFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
 

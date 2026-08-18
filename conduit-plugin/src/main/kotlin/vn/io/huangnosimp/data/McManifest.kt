@@ -1,9 +1,9 @@
-package vn.io.huangnosimp.utils.data
+package vn.io.huangnosimp.data
 
 data class McManifest(
-    val versions: List<Version>
+    val versions: List<Version>,
 ) {
-    data class Version (
+    data class Version(
         val id: String,
         val type: String,
         val url: String,
@@ -15,15 +15,15 @@ data class McManifest(
 }
 
 data class McVersionManifest(
-    val downloads: Downloads
+    val downloads: Downloads,
 ) {
-    data class Downloads (
-        val server: Server
+    data class Downloads(
+        val server: Server,
     ) {
-        data class Server (
+        data class Server(
             val sha1: String,
             val size: Int,
-            val url: String
+            val url: String,
         )
     }
 }

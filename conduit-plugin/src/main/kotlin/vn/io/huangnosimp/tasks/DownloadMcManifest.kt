@@ -6,16 +6,17 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import vn.io.huangnosimp.utils.constant.MC_VERSION_MANIFEST_V2_URL
+import vn.io.huangnosimp.constants.MC_VERSION_MANIFEST_V2_URL
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 @CacheableTask
-abstract class DownloadMcManifest: DefaultTask() {
+abstract class DownloadMcManifest : DefaultTask() {
     @get:OutputFile
     abstract val mcManifest: RegularFileProperty
+
     @TaskAction
     fun run() {
         val client = HttpClient.newHttpClient()
