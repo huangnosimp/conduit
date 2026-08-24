@@ -8,3 +8,11 @@ val MC_26_RELEASE_TIME: Instant = OffsetDateTime.parse("2025-12-16T12:42:29+00:0
 
 const val VERSIONS_LIST = "META-INF/versions.list"
 const val LIBRARIES_DIR = "META-INF/libraries"
+
+const val CONDUIT_CACHE_DIR = ".gradle/conduit/"
+const val MC_MANIFEST = "mcManifest.json"
+const val VERSION_MANIFEST = "versionManifest.json"
+const val BUNDLER_JAR = "jars/bundler.jar"
+const val DECOMPILED_JAR = "jars/decompiled_server.jar"
+const val SERVER_JAR = "jars/server.jar"
+const val LIBS_DIR = "libs"

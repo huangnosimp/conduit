@@ -1,9 +1,7 @@
 package vn.io.huangnosimp.tasks
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import vn.io.huangnosimp.constants.MC_VERSION_MANIFEST_V2_URL
@@ -12,8 +10,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-@CacheableTask
-abstract class DownloadMcManifest : DefaultTask() {
+abstract class DownloadMcManifest : BaseTask() {
     @get:OutputFile
     abstract val mcManifest: RegularFileProperty
 

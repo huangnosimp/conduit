@@ -13,6 +13,7 @@ repositories {
 dependencies {
     implementation(libs.gson)
     implementation(libs.vineflower)
+    implementation(libs.jgit)
 }
 
 gradlePlugin {

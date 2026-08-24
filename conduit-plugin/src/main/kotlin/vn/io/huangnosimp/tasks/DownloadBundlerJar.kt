@@ -1,10 +1,8 @@
 package vn.io.huangnosimp.tasks
 
 import com.google.gson.Gson
-import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -18,8 +16,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 
-@CacheableTask
-abstract class DownloadBundlerJar : DefaultTask() {
+abstract class DownloadBundlerJar : BaseTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionManifest: RegularFileProperty

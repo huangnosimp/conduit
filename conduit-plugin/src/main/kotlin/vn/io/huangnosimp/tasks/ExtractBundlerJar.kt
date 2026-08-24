@@ -1,22 +1,20 @@
 package vn.io.huangnosimp.tasks
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import vn.io.huangnosimp.constants.LIBRARIES_DIR
 import vn.io.huangnosimp.constants.VERSIONS_LIST
+import vn.io.huangnosimp.utils.copy
 import java.net.URI
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-@CacheableTask
-abstract class ExtractBundlerJar : DefaultTask() {
+abstract class ExtractBundlerJar : BaseTask() {
     @get:Classpath
     abstract val bundleJar: RegularFileProperty
 
@@ -41,21 +39,9 @@ abstract class ExtractBundlerJar : DefaultTask() {
             val sourceEntry = fileSystem.getPath("/META-INF/versions/$serverJarPath")
             Files.copy(sourceEntry, serverJar.get().asFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
 
-            val sourceRoot = fileSystem.getPath(LIBRARIES_DIR)
-            val targetRoot = libsDir.get().asFile.toPath()
-            Files.walk(sourceRoot).use { stream ->
-                stream.forEach { source ->
-                    val relative = sourceRoot.relativize(source).toString()
-                    val target = targetRoot.resolve(relative)
-
-                    if (Files.isDirectory(source)) {
-                        Files.createDirectories(target)
-                    } else {
-                        target.parent?.let { Files.createDirectories(it) }
-                        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
-                    }
-                }
-            }
+            val sourceLibs = fileSystem.getPath(LIBRARIES_DIR)
+            val targetLibs = libsDir.get().asFile.toPath()
+            copy(sourceLibs, targetLibs)
         }
     }
 }
