@@ -2,46 +2,71 @@ package vn.io.huangnosimp
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Provider
-import vn.io.huangnosimp.constants.BUNDLER_JAR
+import vn.io.huangnosimp.constants.BASE
 import vn.io.huangnosimp.constants.CONDUIT_CACHE_DIR
-import vn.io.huangnosimp.constants.DECOMPILED_JAR
-import vn.io.huangnosimp.constants.LIBS_DIR
 import vn.io.huangnosimp.constants.MC_MANIFEST
-import vn.io.huangnosimp.constants.RESOURCES_DIR
-import vn.io.huangnosimp.constants.SERVER_JAR
-import vn.io.huangnosimp.constants.SOURCES_DIR
-import vn.io.huangnosimp.constants.VERSION_MANIFEST
+import vn.io.huangnosimp.constants.RESOURCES
+import vn.io.huangnosimp.constants.SOURCES
+import vn.io.huangnosimp.constants.UPDATE
 import vn.io.huangnosimp.extension.ConduitExtension
-import vn.io.huangnosimp.tasks.DecompileServerJar
-import vn.io.huangnosimp.tasks.DownloadBundlerJar
+import vn.io.huangnosimp.tasks.CleanConduitCache
 import vn.io.huangnosimp.tasks.DownloadMcManifest
-import vn.io.huangnosimp.tasks.DownloadVersionManifest
-import vn.io.huangnosimp.tasks.ExtractBundlerJar
-import vn.io.huangnosimp.tasks.SetupMcVersion
+import vn.io.huangnosimp.utils.registerMcSetupPipeline
+import vn.io.huangnosimp.utils.registerPatchingPipeline
 
 class Conduit : Plugin<Project> {
     override fun apply(project: Project) {
         val ext = project.extensions.create("conduit", ConduitExtension::class.java)
+        if (!project.plugins.hasPlugin("java")) {
+            project.plugins.apply("java")
+        }
         val downloadMcManifest =
             project.tasks.register("downloadMcManifest", DownloadMcManifest::class.java) {
                 it.mcManifest.set(project.layout.projectDirectory.file(CONDUIT_CACHE_DIR + MC_MANIFEST))
             }
+        project.tasks.register("cleanConduitCache", CleanConduitCache::class.java) {
+            it.group = "build"
+            it.cacheDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR))
+        }
         project.afterEvaluate {
             if (ext.mcBaseVersion.isPresent) {
-                project.registerMcSetupPipeline(
-                    type = "Base",
-                    version = ext.mcBaseVersion,
-                    mcManifest =
-                        downloadMcManifest.flatMap {
-                            it.mcManifest
+                val mcBaseResult =
+                    project.registerMcSetupPipeline(
+                        type = BASE,
+                        version = ext.mcBaseVersion,
+                        mcManifest =
+                            downloadMcManifest.flatMap {
+                                it.mcManifest
+                            },
+                    )
+                val setupMcBaseTask = mcBaseResult.setupMcVersion
+                project.registerPatchingPipeline(
+                    inputDir =
+                        setupMcBaseTask.flatMap { task ->
+                            task.sourcesDir
                         },
+                    type = SOURCES,
                 )
+                project.registerPatchingPipeline(
+                    inputDir =
+                        setupMcBaseTask.flatMap { task ->
+                            task.resourcesDir
+                        },
+                    type = RESOURCES,
+                )
+
+                val mcLibs =
+                    project.objects
+                        .fileCollection()
+                        .from(mcBaseResult.libsDir)
+                        .asFileTree
+                        .matching { it.include("**/*.jar") }
+
+                project.dependencies.add("implementation", mcLibs)
             }
             if (ext.mcUpdateVersion.isPresent) {
                 project.registerMcSetupPipeline(
-                    type = "Update",
+                    type = UPDATE,
                     version = ext.mcUpdateVersion,
                     mcManifest =
                         downloadMcManifest.flatMap {
@@ -50,66 +75,9 @@ class Conduit : Plugin<Project> {
                 )
             }
         }
-    }
-
-    private fun Project.registerMcSetupPipeline(
-        version: Provider<String>,
-        mcManifest: Provider<RegularFile>,
-        type: String,
-    ) {
-        val downloadVersionManifest =
-            project.tasks.register("download${type}VersionManifest", DownloadVersionManifest::class.java) {
-                it.mcVersion.set(version)
-                it.mcManifest.set(
-                    mcManifest,
-                )
-                it.versionManifest.set(
-                    project.layout.projectDirectory.file(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + VERSION_MANIFEST),
-                )
-            }
-        val downloadBundlerJar =
-            project.tasks.register("download${type}BundlerJar", DownloadBundlerJar::class.java) {
-                it.versionManifest.set(
-                    downloadVersionManifest.flatMap { task ->
-                        task.versionManifest
-                    },
-                )
-                it.bundlerJar.set(project.layout.projectDirectory.file(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + BUNDLER_JAR))
-            }
-        val extractBundlerJar =
-            project.tasks.register("extract${type}BundlerJar", ExtractBundlerJar::class.java) {
-                it.bundleJar.set(
-                    downloadBundlerJar.flatMap { task ->
-                        task.bundlerJar
-                    },
-                )
-                it.serverJar.set(project.layout.projectDirectory.file(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + SERVER_JAR))
-                it.libsDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + LIBS_DIR))
-            }
-        val decompileServerJar =
-            project.tasks.register("decompile${type}ServerJar", DecompileServerJar::class.java) {
-                it.serverJar.set(
-                    extractBundlerJar.flatMap { task ->
-                        task.serverJar
-                    },
-                )
-                it.libsDir.set(
-                    extractBundlerJar.flatMap { task ->
-                        task.libsDir
-                    },
-                )
-                it.outputJar.set(project.layout.projectDirectory.file(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + DECOMPILED_JAR))
-            }
-        val setupMcVersion =
-            project.tasks.register("setupMc$type", SetupMcVersion::class.java) {
-                it.decompiledJar.set(
-                    decompileServerJar.flatMap { task ->
-                        task.outputJar
-                    },
-                )
-                it.mcBaseVersion.set(version)
-                it.sourcesDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + SOURCES_DIR))
-                it.resourcesDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + RESOURCES_DIR))
-            }
+        project.tasks.register("runAll") {
+            it.dependsOn("setupSourcesWorkspace")
+            it.dependsOn("setupResourcesWorkspace")
+        }
     }
 }

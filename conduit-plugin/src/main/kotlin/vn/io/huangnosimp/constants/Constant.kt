@@ -19,6 +19,8 @@ const val SERVER_JAR = "jars/server.jar"
 const val LIBS_DIR = "libs"
 const val SOURCES_DIR = "minecraft/java"
 const val RESOURCES_DIR = "minecraft/resources"
+const val WORKSPACE_SOURCES_DIR = "src/minecraft/java"
+const val WORKSPACE_RESOURCES_DIR = "src/minecraft/resources"
 
 val DECOMPILE_ARGS: Map<String, String> =
     mapOf(
@@ -26,3 +28,9 @@ val DECOMPILE_ARGS: Map<String, String> =
         "decompile-complex-constant-dynamic" to "1",
         IFernflowerPreferences.INDENT_STRING to "    ",
     )
+
+const val CONDUIT = "conduit"
+const val BASE = "Base"
+const val UPDATE = "Update"
+const val SOURCES = "Sources"
+const val RESOURCES = "Resources"
