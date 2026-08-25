@@ -19,21 +19,25 @@ abstract class SetupMcVersion : BaseTask() {
     abstract val mcBaseVersion: Property<String>
 
     @get:OutputDirectory
-    abstract val outDir: DirectoryProperty
+    abstract val sourcesDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val resourcesDir: DirectoryProperty
 
     @TaskAction
     fun run() {
-        val outDir = outDir.get().asFile
+        val sources = sourcesDir.get().asFile
+        val resources = resourcesDir.get().asFile
         val jarUri = URI.create("jar:${decompiledJar.get().asFile.toPath().toUri()}")
         val env = mapOf("create" to "true")
         FileSystems.newFileSystem(jarUri, env).use { fs ->
-            copy(fs.getPath("/com"), outDir.resolve("java/com").toPath())
-            copy(fs.getPath("/net"), outDir.resolve("java/net").toPath())
-            copy(fs.getPath("/assets"), outDir.resolve("resources/assets").toPath())
-            copy(fs.getPath("/data"), outDir.resolve("resources/data").toPath())
-            copy(fs.getPath("/META-INF"), outDir.resolve("resources/META-INF").toPath())
-            copy(fs.getPath("/version.json"), outDir.resolve("resources/version.json").toPath())
-            copy(fs.getPath("/flightrecorder-config.jfc"), outDir.resolve("resources/flightrecorder-config.jfc").toPath())
+            copy(fs.getPath("/com"), sources.resolve("com").toPath())
+            copy(fs.getPath("/net"), sources.resolve("net").toPath())
+            copy(fs.getPath("/assets"), resources.resolve("assets").toPath())
+            copy(fs.getPath("/data"), resources.resolve("data").toPath())
+            copy(fs.getPath("/META-INF"), resources.resolve("META-INF").toPath())
+            copy(fs.getPath("/version.json"), resources.resolve("version.json").toPath())
+            copy(fs.getPath("/flightrecorder-config.jfc"), resources.resolve("flightrecorder-config.jfc").toPath())
         }
     }
 }

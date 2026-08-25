@@ -1,5 +1,6 @@
 package vn.io.huangnosimp.constants
 
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences
 import java.time.Instant
 import java.time.OffsetDateTime
 
@@ -16,3 +17,12 @@ const val BUNDLER_JAR = "jars/bundler.jar"
 const val DECOMPILED_JAR = "jars/decompiled_server.jar"
 const val SERVER_JAR = "jars/server.jar"
 const val LIBS_DIR = "libs"
+const val SOURCES_DIR = "minecraft/java"
+const val RESOURCES_DIR = "minecraft/resources"
+
+val DECOMPILE_ARGS: Map<String, String> =
+    mapOf(
+        "ternary-constant-simplification" to "1",
+        "decompile-complex-constant-dynamic" to "1",
+        IFernflowerPreferences.INDENT_STRING to "    ",
+    )

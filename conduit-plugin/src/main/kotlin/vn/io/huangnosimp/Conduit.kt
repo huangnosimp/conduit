@@ -9,7 +9,9 @@ import vn.io.huangnosimp.constants.CONDUIT_CACHE_DIR
 import vn.io.huangnosimp.constants.DECOMPILED_JAR
 import vn.io.huangnosimp.constants.LIBS_DIR
 import vn.io.huangnosimp.constants.MC_MANIFEST
+import vn.io.huangnosimp.constants.RESOURCES_DIR
 import vn.io.huangnosimp.constants.SERVER_JAR
+import vn.io.huangnosimp.constants.SOURCES_DIR
 import vn.io.huangnosimp.constants.VERSION_MANIFEST
 import vn.io.huangnosimp.extension.ConduitExtension
 import vn.io.huangnosimp.tasks.DecompileServerJar
@@ -37,8 +39,6 @@ class Conduit : Plugin<Project> {
                         },
                 )
             }
-        }
-        project.afterEvaluate {
             if (ext.mcUpdateVersion.isPresent) {
                 project.registerMcSetupPipeline(
                     type = "Update",
@@ -108,7 +108,8 @@ class Conduit : Plugin<Project> {
                     },
                 )
                 it.mcBaseVersion.set(version)
-                it.outDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + "minecraft"))
+                it.sourcesDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + SOURCES_DIR))
+                it.resourcesDir.set(project.layout.projectDirectory.dir(CONDUIT_CACHE_DIR + "${type.lowercase()}/" + RESOURCES_DIR))
             }
     }
 }
