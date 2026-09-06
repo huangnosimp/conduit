@@ -7,12 +7,11 @@ plugins {
 
 repositories {
     mavenCentral()
-    gradlePluginPortal()
 }
 
 dependencies {
     implementation(libs.gson)
-    implementation(libs.vineflower)
+    implementation(variantOf(libs.vineflower) { classifier("slim") })
     implementation(libs.jgit)
 }
 

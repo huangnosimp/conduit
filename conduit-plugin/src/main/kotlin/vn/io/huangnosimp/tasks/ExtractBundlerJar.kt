@@ -2,9 +2,11 @@ package vn.io.huangnosimp.tasks
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import vn.io.huangnosimp.constants.LIBRARIES_DIR
 import vn.io.huangnosimp.constants.VERSIONS_LIST
@@ -15,7 +17,8 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 abstract class ExtractBundlerJar : BaseTask() {
-    @get:Classpath
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val bundleJar: RegularFileProperty
 
     @get:OutputFile

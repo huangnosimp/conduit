@@ -1,11 +1,8 @@
 package vn.io.huangnosimp.constants
 
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences
-import java.time.Instant
-import java.time.OffsetDateTime
-
 const val MC_VERSION_MANIFEST_V2_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
-val MC_26_RELEASE_TIME: Instant = OffsetDateTime.parse("2025-12-16T12:42:29+00:00").toInstant()
+const val PAPERMC_REPOSITORY_URL = "https://repo.papermc.io/repository/maven-public/"
+const val MACHE_METADATA_URL = PAPERMC_REPOSITORY_URL + "io/papermc/mache/maven-metadata.xml"
 
 const val VERSIONS_LIST = "META-INF/versions.list"
 const val LIBRARIES_DIR = "META-INF/libraries"
@@ -21,13 +18,8 @@ const val SOURCES_DIR = "minecraft/java"
 const val RESOURCES_DIR = "minecraft/resources"
 const val WORKSPACE_SOURCES_DIR = "src/minecraft/java"
 const val WORKSPACE_RESOURCES_DIR = "src/minecraft/resources"
-
-val DECOMPILE_ARGS: Map<String, String> =
-    mapOf(
-        "ternary-constant-simplification" to "1",
-        "decompile-complex-constant-dynamic" to "1",
-        IFernflowerPreferences.INDENT_STRING to "    ",
-    )
+const val MACHE_PATCHES_DIR = CONDUIT_CACHE_DIR + "mache/patches"
+const val MACHE_JSON = CONDUIT_CACHE_DIR + "mache.json"
 
 const val CONDUIT = "conduit"
 const val BASE = "Base"
