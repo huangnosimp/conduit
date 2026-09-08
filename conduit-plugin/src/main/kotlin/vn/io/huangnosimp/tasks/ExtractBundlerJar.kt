@@ -8,8 +8,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import vn.io.huangnosimp.constants.LIBRARIES_DIR
-import vn.io.huangnosimp.constants.VERSIONS_LIST
 import vn.io.huangnosimp.utils.copy
 import java.net.URI
 import java.nio.file.FileSystems
@@ -35,14 +33,14 @@ abstract class ExtractBundlerJar : BaseTask() {
         FileSystems.newFileSystem(jarUri, env).use { fileSystem ->
             val serverJarPath =
                 Files
-                    .readAllLines(fileSystem.getPath(VERSIONS_LIST))[0]
+                    .readAllLines(fileSystem.getPath("META-INF/versions.list"))[0]
                     .split('\t')
                     .last()
                     .trim()
             val sourceEntry = fileSystem.getPath("/META-INF/versions/$serverJarPath")
             Files.copy(sourceEntry, serverJar.get().asFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
 
-            val sourceLibs = fileSystem.getPath(LIBRARIES_DIR)
+            val sourceLibs = fileSystem.getPath("META-INF/libraries")
             val targetLibs = libsDir.get().asFile.toPath()
             copy(sourceLibs, targetLibs)
         }
