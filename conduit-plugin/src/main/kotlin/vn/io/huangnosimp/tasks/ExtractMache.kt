@@ -6,7 +6,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import vn.io.huangnosimp.utils.copy
+import vn.io.huangnosimp.util.copy
 import java.nio.file.FileSystems
 
 abstract class ExtractMache : BaseTask() {
