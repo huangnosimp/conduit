@@ -44,7 +44,7 @@ fun resolveLatestMacheVersion(minecraftVersion: String): String {
     if (matching.isEmpty()) {
         throw GradleException(
             "No Mache build found for Minecraft $minecraftVersion.\n" +
-                    "Available versions: ${allVersions.joinToString(", ")}",
+                "Available versions: ${allVersions.joinToString(", ")}",
         )
     }
 

@@ -3,6 +3,7 @@ package vn.io.huangnosimp.tasks
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.CompileClasspath
@@ -50,15 +51,19 @@ abstract class RemapServerJar : JavaExec() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val paramMappings: ConfigurableFileCollection?
 
+    @get:Input
+    abstract val maxHeapSize: Property<String>
+
     init {
         group = CONDUIT
+        maxHeapSize.convention("2G")
     }
 
     @TaskAction
     fun run() {
         mainClass.set(JarFile(codebookClasspath.singleFile).manifest.mainAttributes.getValue("Main-Class"))
         classpath = codebookClasspath
-        jvmArgs = listOf("-Xmx2G")
+        jvmArgs = listOf("-Xmx${maxHeapSize.get()}")
         val args = mutableListOf<String>()
 
         codebookArgs.get().forEach { arg ->

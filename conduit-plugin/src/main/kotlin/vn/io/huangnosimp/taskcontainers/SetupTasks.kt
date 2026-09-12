@@ -4,6 +4,8 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 import vn.io.huangnosimp.constants.BUNDLER_JAR
 import vn.io.huangnosimp.constants.DOWNLOAD_BUNDLE_JAR
 import vn.io.huangnosimp.constants.DOWNLOAD_VERSION_MANIFEST
@@ -72,5 +74,13 @@ class SetupTasks(
             it.serverMapping?.set(downloadBundlerJar.flatMap { task -> task.serverMapping })
             it.paramMappings?.from(project.configurations.named(MACHE_PARAM_MAPPINGS_CONFIG))
             it.remappedJar.set(project.layout.projectDirectory.file(REMAPPED_JAR))
+
+            it.javaLauncher.set(
+                project.extensions.getByType(JavaToolchainService::class.java).launcherFor { spec ->
+                    spec.languageVersion.set(
+                        JavaLanguageVersion.of(25),
+                    )
+                },
+            )
         }
 }
