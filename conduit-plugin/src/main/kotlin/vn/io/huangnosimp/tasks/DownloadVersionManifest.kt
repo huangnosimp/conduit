@@ -13,7 +13,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import vn.io.huangnosimp.data.McManifest
-import vn.io.huangnosimp.hashing.toSha1
+import vn.io.huangnosimp.util.toSha1
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

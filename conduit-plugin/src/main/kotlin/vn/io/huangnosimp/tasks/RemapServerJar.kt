@@ -11,6 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -22,7 +23,7 @@ import kotlin.io.path.absolutePathString
 @CacheableTask
 abstract class RemapServerJar : JavaExec() {
     @get:InputFile
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:PathSensitive(PathSensitivity.NONE)
     abstract val serverJar: RegularFileProperty
 
     @get:Input
@@ -38,32 +39,35 @@ abstract class RemapServerJar : JavaExec() {
     abstract val constants: ConfigurableFileCollection
 
     @get:OutputFile
-    abstract val remappedJar: RegularFileProperty
+    abstract val remappedServerJar: RegularFileProperty
 
+    @get:Optional
     @get:Classpath
-    abstract val remapperClasspath: ConfigurableFileCollection?
+    abstract val remapperClasspath: ConfigurableFileCollection
 
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val serverMapping: RegularFileProperty?
-
+    @get:Optional
     @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val paramMappings: ConfigurableFileCollection?
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val serverMapping: ConfigurableFileCollection
+
+    @get:Optional
+    @get:Classpath
+    abstract val paramMappings: ConfigurableFileCollection
 
     @get:Input
-    abstract val maxHeapSize: Property<String>
+    abstract val memory: Property<String>
 
     init {
         group = CONDUIT
-        maxHeapSize.convention("2G")
+        memory.convention("2G")
     }
 
     @TaskAction
     fun run() {
+        remappedServerJar.get().asFile.delete()
         mainClass.set(JarFile(codebookClasspath.singleFile).manifest.mainAttributes.getValue("Main-Class"))
         classpath = codebookClasspath
-        jvmArgs = listOf("-Xmx${maxHeapSize.get()}")
+        jvmArgs = listOf("-Xmx${memory.get()}")
         val args = mutableListOf<String>()
 
         codebookArgs.get().forEach { arg ->
@@ -71,17 +75,16 @@ abstract class RemapServerJar : JavaExec() {
                 arg
                     .replace(Regex("\\{tempDir}")) { temporaryDir.toPath().absolutePathString() }
                     .replace(Regex("\\{remapperFile}")) {
-                        remapperClasspath?.singleFile?.absolutePath ?: error("{remapperFile} in args, but no remapperClasspath provided")
+                        remapperClasspath.singleFile.absolutePath ?: error("{remapperFile} in args, but no remapperClasspath provided")
                     }.replace(Regex("\\{mappingsFile}")) {
                         serverMapping
-                            ?.get()
-                            ?.asFile
+                            .files
+                            .singleOrNull()
                             ?.toPath()
                             ?.absolutePathString()
                             ?: error("{mappingsFile} in args, but no serverMappings provided")
                     }.replace(Regex("\\{paramsFile}")) {
-                        paramMappings?.singleFile?.toPath()?.absolutePathString()
-                            ?: error("{paramsFile} in args, but no paramMappings provided")
+                        paramMappings.singleFile.toPath().absolutePathString()
                     }.replace(Regex("\\{constantsFile}")) {
                         constants.files
                             .singleOrNull()
@@ -89,7 +92,7 @@ abstract class RemapServerJar : JavaExec() {
                             ?.absolutePathString()
                             ?: error("{constantsFile} in args, but no constants provided")
                     }.replace(Regex("\\{output}")) {
-                        remappedJar
+                        remappedServerJar
                             .get()
                             .asFile
                             .toPath()
@@ -106,5 +109,13 @@ abstract class RemapServerJar : JavaExec() {
         }
 
         setArgs(args)
+        println(args)
+        standardOutput =
+            temporaryDir
+                .toPath()
+                .resolve("${remappedServerJar.get().asFile.name}.log")
+                .toFile()
+                .outputStream()
+        errorOutput = standardOutput
     }
 }

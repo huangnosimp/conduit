@@ -2,15 +2,20 @@ package vn.io.huangnosimp.tasks
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import vn.io.huangnosimp.util.copy
 import java.nio.file.FileSystems
 
+@CacheableTask
 abstract class ExtractMache : BaseTask() {
     @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
     abstract val mache: RegularFileProperty
 
     @get:OutputFile

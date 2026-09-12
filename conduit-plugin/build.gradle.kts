@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.gson)
     implementation(variantOf(libs.vineflower) { classifier("slim") })
     implementation(libs.jgit)
+    implementation(libs.diffpatch)
 }
 
 gradlePlugin {

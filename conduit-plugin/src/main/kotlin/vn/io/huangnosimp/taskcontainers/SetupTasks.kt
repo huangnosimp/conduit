@@ -6,7 +6,10 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
+import vn.io.huangnosimp.constants.APPLY_MACHE_PATCHES
 import vn.io.huangnosimp.constants.BUNDLER_JAR
+import vn.io.huangnosimp.constants.DECOMPILED_JAR
+import vn.io.huangnosimp.constants.DECOMPILE_SERVER_JAR
 import vn.io.huangnosimp.constants.DOWNLOAD_BUNDLE_JAR
 import vn.io.huangnosimp.constants.DOWNLOAD_VERSION_MANIFEST
 import vn.io.huangnosimp.constants.EXTRACT_BUNDLE_JAR
@@ -14,16 +17,20 @@ import vn.io.huangnosimp.constants.EXTRACT_MACHE
 import vn.io.huangnosimp.constants.LIBS_DIR
 import vn.io.huangnosimp.constants.MACHE_CODEBOOK_CONFIG
 import vn.io.huangnosimp.constants.MACHE_CONSTANTS_CONFIG
+import vn.io.huangnosimp.constants.MACHE_DECOMPILER_CONFIG
 import vn.io.huangnosimp.constants.MACHE_JSON
 import vn.io.huangnosimp.constants.MACHE_PARAM_MAPPINGS_CONFIG
 import vn.io.huangnosimp.constants.MACHE_PATCHES_DIR
 import vn.io.huangnosimp.constants.MACHE_REMAPPER_CONFIG
+import vn.io.huangnosimp.constants.PATCHED_JAR
 import vn.io.huangnosimp.constants.REMAPPED_JAR
 import vn.io.huangnosimp.constants.REMAP_SERVER_JAR
 import vn.io.huangnosimp.constants.SERVER_JAR
 import vn.io.huangnosimp.constants.SERVER_MAPPING
 import vn.io.huangnosimp.constants.VERSION_MANIFEST
 import vn.io.huangnosimp.data.mache.MacheMetaData
+import vn.io.huangnosimp.tasks.ApplyMachePatches
+import vn.io.huangnosimp.tasks.DecompileServerJar
 import vn.io.huangnosimp.tasks.DownloadBundlerJar
 import vn.io.huangnosimp.tasks.DownloadMcManifest
 import vn.io.huangnosimp.tasks.DownloadVersionManifest
@@ -70,10 +77,18 @@ class SetupTasks(
             it.codebookClasspath.from(project.configurations.named(MACHE_CODEBOOK_CONFIG))
             it.minecraftClasspath.from(extractBundlerJar.flatMap { task -> task.libsDir }.map { dir -> dir.asFileTree })
             it.constants.from(project.configurations.named(MACHE_CONSTANTS_CONFIG))
-            it.remapperClasspath?.from(project.configurations.named(MACHE_REMAPPER_CONFIG))
-            it.serverMapping?.set(downloadBundlerJar.flatMap { task -> task.serverMapping })
-            it.paramMappings?.from(project.configurations.named(MACHE_PARAM_MAPPINGS_CONFIG))
-            it.remappedJar.set(project.layout.projectDirectory.file(REMAPPED_JAR))
+            it.remapperClasspath.from(project.configurations.named(MACHE_REMAPPER_CONFIG))
+            it.serverMapping.from(
+                downloadBundlerJar.flatMap { task -> task.serverMapping }.map { file ->
+                    if (file.asFile.exists()) {
+                        listOf(file.asFile)
+                    } else {
+                        emptyList()
+                    }
+                },
+            )
+            it.paramMappings.from(project.configurations.named(MACHE_PARAM_MAPPINGS_CONFIG))
+            it.remappedServerJar.set(project.layout.projectDirectory.file(REMAPPED_JAR))
 
             it.javaLauncher.set(
                 project.extensions.getByType(JavaToolchainService::class.java).launcherFor { spec ->
@@ -82,5 +97,27 @@ class SetupTasks(
                     )
                 },
             )
+        }
+    val decompileServerJar =
+        project.tasks.register(DECOMPILE_SERVER_JAR, DecompileServerJar::class.java) {
+            it.remappedServerJar.set(remapServerJar.flatMap { task -> task.remappedServerJar })
+            it.decompilerArgs.set(project.provider { macheProvider.get().decompilerArgs })
+            it.decompilerClasspath.from(project.configurations.named(MACHE_DECOMPILER_CONFIG))
+            it.minecraftClasspath.from(extractBundlerJar.flatMap { task -> task.libsDir }.map { dir -> dir.asFileTree })
+            it.decompiledServerJar.set(project.layout.projectDirectory.file(DECOMPILED_JAR))
+
+            it.javaLauncher.set(
+                project.extensions.getByType(JavaToolchainService::class.java).launcherFor { spec ->
+                    spec.languageVersion.set(
+                        JavaLanguageVersion.of(25),
+                    )
+                },
+            )
+        }
+    val applyMachePatches =
+        project.tasks.register(APPLY_MACHE_PATCHES, ApplyMachePatches::class.java) {
+            it.decompiledServerJar.set(decompileServerJar.flatMap { task -> task.decompiledServerJar })
+            it.machePatchesDir.set(extractMache.flatMap { task -> task.patchesDir })
+            it.patchedServerJar.set(project.layout.projectDirectory.file(PATCHED_JAR))
         }
 }

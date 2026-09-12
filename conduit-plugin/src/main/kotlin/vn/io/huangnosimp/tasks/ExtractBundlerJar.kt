@@ -2,6 +2,7 @@ package vn.io.huangnosimp.tasks
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
@@ -14,6 +15,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
+@CacheableTask
 abstract class ExtractBundlerJar : BaseTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)

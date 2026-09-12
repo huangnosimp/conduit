@@ -5,12 +5,13 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import vn.io.huangnosimp.data.McVersionManifest
-import vn.io.huangnosimp.hashing.toSha1
+import vn.io.huangnosimp.util.toSha1
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -26,6 +27,7 @@ abstract class DownloadBundlerJar : BaseTask() {
     @get:OutputFile
     abstract val bundlerJar: RegularFileProperty
 
+    @get:Optional
     @get:OutputFile
     abstract val serverMapping: RegularFileProperty
 
