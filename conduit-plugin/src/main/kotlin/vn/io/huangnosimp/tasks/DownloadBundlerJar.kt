@@ -33,6 +33,7 @@ abstract class DownloadBundlerJar : BaseTask() {
 
     @TaskAction
     fun run() {
+        serverMapping.get().asFile.delete()
         val gson = Gson()
         val json = versionManifest.get().asFile.readText(Charsets.UTF_8)
         val versionManifest = gson.fromJson(json, McVersionManifest::class.java)

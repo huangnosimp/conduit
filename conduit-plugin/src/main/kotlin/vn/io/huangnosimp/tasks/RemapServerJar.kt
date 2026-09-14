@@ -65,7 +65,7 @@ abstract class RemapServerJar : JavaExec() {
     @TaskAction
     fun run() {
         remappedServerJar.get().asFile.delete()
-        mainClass.set(JarFile(codebookClasspath.singleFile).manifest.mainAttributes.getValue("Main-Class"))
+        mainClass.set(providerFactory.provider { JarFile(codebookClasspath.singleFile).manifest.mainAttributes.getValue("Main-Class") })
         classpath = codebookClasspath
         jvmArgs = listOf("-Xmx${memory.get()}")
         val args = mutableListOf<String>()
@@ -109,7 +109,6 @@ abstract class RemapServerJar : JavaExec() {
         }
 
         setArgs(args)
-        println(args)
         standardOutput =
             temporaryDir
                 .toPath()

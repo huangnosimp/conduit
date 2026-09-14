@@ -5,10 +5,9 @@ import io.codechicken.diffpatch.util.Input
 import io.codechicken.diffpatch.util.LogLevel
 import io.codechicken.diffpatch.util.Output
 import io.codechicken.diffpatch.util.archiver.ArchiveFormat
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -21,9 +20,8 @@ abstract class ApplyMachePatches : BaseTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val decompiledServerJar: RegularFileProperty
 
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val machePatchesDir: DirectoryProperty
+    @get:Classpath
+    abstract val mache: RegularFileProperty
 
     @get:OutputFile
     abstract val patchedServerJar: RegularFileProperty
@@ -34,10 +32,11 @@ abstract class ApplyMachePatches : BaseTask() {
             PatchOperation
                 .builder()
                 .baseInput(Input.ArchiveMultiInput.archive(ArchiveFormat.ZIP, decompiledServerJar.get().asFile.toPath()))
-                .patchesInput(Input.FolderMultiInput(machePatchesDir.get().asFile.toPath()))
+                .patchesInput(Input.ArchiveMultiInput.archive(ArchiveFormat.ZIP, mache.get().asFile.toPath()))
                 .patchedOutput(Output.ArchiveMultiOutput.archive(ArchiveFormat.ZIP, patchedServerJar.get().asFile.toPath()))
                 .logTo(logger::lifecycle)
                 .level(LogLevel.INFO)
+                .patchesPrefix("patches")
                 .build()
                 .operate()
         if (result.exit != 0) {

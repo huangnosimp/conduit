@@ -76,11 +76,10 @@ abstract class DecompileServerJar : JavaExec() {
                 .toPath()
                 .absolutePathString()
 
-        mainClass.set(JarFile(decompilerClasspath.singleFile).manifest.mainAttributes.getValue("Main-Class"))
+        mainClass.set(providerFactory.provider { JarFile(decompilerClasspath.singleFile).manifest.mainAttributes.getValue("Main-Class") })
         classpath = decompilerClasspath
         jvmArgs = listOf("-Xmx${memory.get()}")
         setArgs(args)
-        println(args)
         standardOutput =
             temporaryDir
                 .toPath()

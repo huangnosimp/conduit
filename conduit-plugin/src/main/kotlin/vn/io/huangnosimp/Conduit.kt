@@ -3,22 +3,25 @@ package vn.io.huangnosimp
 import com.google.gson.Gson
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
+import vn.io.huangnosimp.attribute.MacheOutput
 import vn.io.huangnosimp.constants.DOWNLOAD_MC_MANIFEST
 import vn.io.huangnosimp.constants.MACHE_CODEBOOK_CONFIG
+import vn.io.huangnosimp.constants.MACHE_CONFIG
 import vn.io.huangnosimp.constants.MACHE_CONSTANTS_CONFIG
 import vn.io.huangnosimp.constants.MACHE_DECOMPILER_CONFIG
 import vn.io.huangnosimp.constants.MACHE_PARAM_MAPPINGS_CONFIG
 import vn.io.huangnosimp.constants.MACHE_REMAPPER_CONFIG
 import vn.io.huangnosimp.constants.MC_MANIFEST
+import vn.io.huangnosimp.constants.MINECRAFT_DEPENDENCIES_CONFIG
 import vn.io.huangnosimp.constants.PAPERMC_REPOSITORY_URL
 import vn.io.huangnosimp.data.mache.MacheMetaData
 import vn.io.huangnosimp.extension.ConduitExtension
 import vn.io.huangnosimp.taskcontainers.SetupTasks
 import vn.io.huangnosimp.tasks.DownloadMcManifest
-import vn.io.huangnosimp.util.resolveLatestMacheVersion
 
 class Conduit : Plugin<Project> {
     override fun apply(project: Project) {
@@ -29,6 +32,12 @@ class Conduit : Plugin<Project> {
         }
 
         // project config
+        val sourceSets =
+            project.extensions
+                .getByType(JavaPluginExtension::class.java)
+                .sourceSets
+                .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+
         project.repositories.apply {
             maven { it.url = project.uri(PAPERMC_REPOSITORY_URL) }
         }
@@ -49,16 +58,28 @@ class Conduit : Plugin<Project> {
             it.isTransitive = false
         }
         val macheConfig =
-            project.configurations.detachedConfiguration().apply {
-                isTransitive = false
+            project.configurations
+                .create(MACHE_CONFIG) {
+                    it.attributes.attribute(
+                        MacheOutput.ATTRIBUTE,
+                        project.objects.named(
+                            MacheOutput::class.java,
+                            MacheOutput.ZIP,
+                        ),
+                    )
+                }.defaultDependencies {
+                    val mcVersion = ext.mcBaseVersion.get()
+                    it.add(project.dependencies.create("io.papermc:mache:$mcVersion+build.+"))
+                }
+
+        val minecraftDependenciesConfig =
+            project.configurations.register(MINECRAFT_DEPENDENCIES_CONFIG) {
+                it.extendsFrom(macheConfig)
             }
 
-        macheConfig.dependencies.addLater(
-            ext.mcBaseVersion.map { mcVersion ->
-                val version = resolveLatestMacheVersion(mcVersion)
-                project.dependencies.create("io.papermc:mache:$version@zip")
-            },
-        )
+        project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME) {
+            it.extendsFrom(minecraftDependenciesConfig.get())
+        }
 
         val mache: Property<MacheMetaData> = project.objects.property(MacheMetaData::class.java)
 
@@ -76,13 +97,10 @@ class Conduit : Plugin<Project> {
 
             mache.get().addRepository(project)
             mache.get().addDependencies(project)
-        }
 
-        val sourceSets =
-            project.extensions
-                .getByType(JavaPluginExtension::class.java)
-                .sourceSets
-                .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+            sourceSets.java.srcDirs(project.layout.projectDirectory.dir("src/minecraft/java"))
+            sourceSets.resources.srcDirs(project.layout.projectDirectory.dir("src/minecraft/resources"))
+        }
 
         // Task register
         val downloadMcManifest =

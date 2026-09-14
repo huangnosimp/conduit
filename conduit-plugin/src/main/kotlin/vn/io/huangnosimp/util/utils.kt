@@ -5,7 +5,6 @@ import vn.io.huangnosimp.constants.MACHE_METADATA_URL
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.use
@@ -24,7 +23,7 @@ fun copy(
                 Files.createDirectories(target)
             } else {
                 target.parent?.let { Files.createDirectories(it) }
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
+                Files.copy(source, target)
             }
         }
     }
