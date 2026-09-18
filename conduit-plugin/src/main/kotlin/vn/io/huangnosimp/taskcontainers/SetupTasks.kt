@@ -24,8 +24,10 @@ import vn.io.huangnosimp.constants.MINECRAFT_DEPENDENCIES_CONFIG
 import vn.io.huangnosimp.constants.PATCHED_JAR
 import vn.io.huangnosimp.constants.REMAPPED_JAR
 import vn.io.huangnosimp.constants.REMAP_SERVER_JAR
+import vn.io.huangnosimp.constants.RESOURCES_DIR
 import vn.io.huangnosimp.constants.SERVER_JAR
 import vn.io.huangnosimp.constants.SERVER_MAPPING
+import vn.io.huangnosimp.constants.SOURCES_DIR
 import vn.io.huangnosimp.constants.VERSION_MANIFEST
 import vn.io.huangnosimp.data.mache.MacheMetaData
 import vn.io.huangnosimp.tasks.ApplyMachePatches
@@ -117,7 +119,7 @@ class SetupTasks(
         project.tasks.register(EXTRACT_TO_WORKSPACE, ExtractToWorkspace::class.java) {
             it.patchedJar.set(applyMachePatches.flatMap { task -> task.patchedServerJar })
             it.remappedJar.set(remapServerJar.flatMap { task -> task.remappedServerJar })
-            it.sourceDir.set(project.layout.projectDirectory.dir("src/minecraft/java"))
-            it.resourceDir.set(project.layout.projectDirectory.dir("src/minecraft/resources"))
+            it.sourceDir.set(project.layout.projectDirectory.dir(SOURCES_DIR))
+            it.resourceDir.set(project.layout.projectDirectory.dir(RESOURCES_DIR))
         }
 }

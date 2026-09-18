@@ -68,7 +68,7 @@ class Conduit : Plugin<Project> {
                         ),
                     )
                 }.defaultDependencies {
-                    val mcVersion = ext.mcBaseVersion.get()
+                    val mcVersion = ext.mcVersion.get()
                     it.add(project.dependencies.create("io.papermc:mache:$mcVersion+build.+"))
                 }
 
@@ -107,6 +107,6 @@ class Conduit : Plugin<Project> {
             project.tasks.register(DOWNLOAD_MC_MANIFEST, DownloadMcManifest::class.java) {
                 it.mcManifest.set(project.layout.projectDirectory.file(MC_MANIFEST))
             }
-        val setupTasks = SetupTasks(project, downloadMcManifest, ext.mcBaseVersion, macheConfig, mache)
+        val setupTasks = SetupTasks(project, downloadMcManifest, ext.mcVersion, macheConfig, mache)
     }
 }

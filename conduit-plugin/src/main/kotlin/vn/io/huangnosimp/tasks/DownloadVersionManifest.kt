@@ -12,6 +12,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import vn.io.huangnosimp.constants.MC_26_RELEASE_TIME
 import vn.io.huangnosimp.data.McManifest
 import vn.io.huangnosimp.util.toSha1
 import java.net.URI
@@ -19,6 +20,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
+import java.time.OffsetDateTime
 
 @CacheableTask
 abstract class DownloadVersionManifest : BaseTask() {
@@ -40,6 +42,10 @@ abstract class DownloadVersionManifest : BaseTask() {
         val version =
             mcManifest.versions.associateBy { it.id }[mcVersion.get().trim()]
                 ?: throw InvalidUserDataException("not found minecraft version ${mcVersion.get()}.")
+
+        if (OffsetDateTime.parse(version.releaseTime).toInstant().isBefore(MC_26_RELEASE_TIME)) {
+            throw InvalidUserDataException("plugin doesn't support minecraft version ${mcVersion.get()}. Please use 26.1 or later.")
+        }
 
         val client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
         val request = HttpRequest.newBuilder(URI(version.url)).timeout(Duration.ofSeconds(30)).build()

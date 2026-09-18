@@ -1,14 +1,15 @@
 package vn.io.huangnosimp.constants
 
+import java.time.Instant
+import java.time.OffsetDateTime
+
 const val MC_VERSION_MANIFEST_V2_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
 const val PAPERMC_REPOSITORY_URL = "https://repo.papermc.io/repository/maven-public/"
-const val MACHE_METADATA_URL = PAPERMC_REPOSITORY_URL + "io/papermc/mache/maven-metadata.xml"
+val MC_26_RELEASE_TIME: Instant = OffsetDateTime.parse("2025-12-16T12:42:29+00:00").toInstant()
 
-// Base Directory
 const val CONDUIT_CACHE_DIR = ".gradle/conduit/"
 const val BASE_DIR = CONDUIT_CACHE_DIR + "base/"
 const val JAR_DIR = BASE_DIR + "jars/"
-const val MACHE_DIR = BASE_DIR + "mache/"
 const val MC_MANIFEST = CONDUIT_CACHE_DIR + "mcManifest.json"
 const val VERSION_MANIFEST = BASE_DIR + "versionManifest.json"
 const val BUNDLER_JAR = JAR_DIR + "bundler.jar"
@@ -18,12 +19,8 @@ const val DECOMPILED_JAR = JAR_DIR + "decompiled_server.jar"
 const val SERVER_JAR = JAR_DIR + "server.jar"
 const val PATCHED_JAR = JAR_DIR + "patched_server.jar"
 const val LIBS_DIR = BASE_DIR + "libs"
-const val MACHE_PATCHES_DIR = MACHE_DIR + "patches"
-const val MACHE_JSON = MACHE_DIR + "mache.json"
-const val SOURCES_DIR = "minecraft/java"
-const val RESOURCES_DIR = "minecraft/resources"
-const val WORKSPACE_SOURCES_DIR = "src/minecraft/java"
-const val WORKSPACE_RESOURCES_DIR = "src/minecraft/resources"
+const val SOURCES_DIR = "src/minecraft/java"
+const val RESOURCES_DIR = "src/minecraft/resources"
 
 const val CONDUIT = "conduit"
 
