@@ -1,4 +1,6 @@
 # Conduit
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/vn.io.huangnosimp.conduit?label=Gradle%20Plugin%20Portal)](https://plugins.gradle.org/plugin/vn.io.huangnosimp.conduit)
+Status: The plugin is pending approval from the Gradle Plugin Portal.
 
 This Gradle plugin is used to generate Minecraft server source code by remapping and decompiling Mojang's Minecraft server. The plugin only supports Minecraft versions 26.1 and later.
 
