@@ -18,13 +18,14 @@ dependencies {
 
 gradlePlugin {
     vcsUrl.set("https://github.com/huangnosimp/conduit.git")
+    website.set("https://github.com/huangnosimp/conduit")
     plugins {
         create("conduit") {
             id = "vn.io.huangnosimp.conduit"
             implementationClass = "vn.io.huangnosimp.Conduit"
             displayName = "Conduit"
             description = "A Gradle plugin designed to generate Minecraft source"
-            tags.set(listOf("minecraft", "plugin"))
+            tags.set(listOf("minecraft"))
         }
     }
 }
